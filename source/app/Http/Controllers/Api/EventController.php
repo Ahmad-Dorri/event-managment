@@ -19,26 +19,17 @@ class EventController extends Controller
         return EventResource::collection(Event::query()->latest()->paginate(25));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(EventRequest $request): EventResource
     {
         $data = $request->validated();
         return new EventResource(Event::query()->create([...$data, 'user_id' => 1]));
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Event $event): EventResource
     {
         return new EventResource($event);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(EventRequest $request, Event $event): EventResource
     {
         $data = $request->validated();
@@ -46,9 +37,6 @@ class EventController extends Controller
         return new EventResource($event);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Event $event): JsonResponse
     {
         $event->delete();
