@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AttendeeResource;
-use App\Models\Attendee;
 use App\Models\Event;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class AttendeeController extends Controller
@@ -17,7 +16,7 @@ class AttendeeController extends Controller
         return AttendeeResource::collection($event->attendees()->latest()->paginate(25));
     }
 
-    public function store(Request $request, Event $event): AttendeeResource
+    public function store(Event $event): AttendeeResource
     {
         $attendee = $event->attendees()->create([
             'user_id' => 1,
@@ -26,19 +25,15 @@ class AttendeeController extends Controller
         return new AttendeeResource($attendee);
     }
 
-    public function show(Event $event, string $attendeeId): AttendeeResource
+    public function show(Event $event, string $id): AttendeeResource
     {
-        $attendee = $event->attendees()->findOrFail($attendeeId);
+        $attendee = $event->attendees()->findOrFail($id);
         return new AttendeeResource($attendee);
     }
 
-    public function update(Request $request, string $id)
+    public function destroy(Event $event, string $id): JsonResponse
     {
-        //
-    }
-
-    public function destroy(string $id)
-    {
-        //
+        $event->attendees()->findOrFail($id)->delete();
+        return response()->json(status: 204);
     }
 }
