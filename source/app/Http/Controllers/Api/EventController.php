@@ -5,40 +5,27 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EventRequest;
 use App\Http\Resources\EventResource;
+use App\Http\Traits\CanLoadRelationShips;
 use App\Models\Event;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class EventController extends Controller
 {
+    use CanLoadRelationShips;
 
-    protected function shouldIncludeRelation(string $relation): bool
-    {
-        $include = request()->query('include');
-        if (! $include) {
-            return false;
-        }
-        $relations = array_map('trim', explode(',', $include));
-        return in_array($relation, $relations);
-    }
-
+    private array $relations = ['user', 'attendees', 'attendees.user'];
     public function index(): ResourceCollection
     {
-        $query = Event::query();
-//        $relations = ['user', 'attendees', 'attendees.user'];
-//
-//        foreach ($relations as $relation) {
-//            $query->when($this->shouldIncludeRelation($relation), fn($q) => $q->with($relation));
-//        }
+        $query = $this->loadRelationships(new Event());
 
-
-        return EventResource::collection($query->latest()->with('user')->paginate(25));
+        return EventResource::collection($query->latest()->paginate(25));
     }
 
     public function store(EventRequest $request): EventResource
     {
         $data = $request->validated();
-        return new EventResource(Event::query()->create([...$data, 'user_id' => 1]));
+        return new EventResource($this->loadRelationships(new Event())->create([...$data, 'user_id' => 1]));
     }
 
     public function show(Event $event): EventResource

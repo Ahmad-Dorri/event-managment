@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AttendeeResource;
+use App\Http\Traits\CanLoadRelationShips;
+use App\Models\Attendee;
 use App\Models\Event;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class AttendeeController extends Controller
 {
-
     public function index(Event $event): ResourceCollection
     {
         return AttendeeResource::collection($event->attendees()->latest()->paginate(25));
