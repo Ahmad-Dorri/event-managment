@@ -12,9 +12,11 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class AttendeeController extends Controller
 {
+    use CanLoadRelationShips;
+    private array $relations = ['user'];
     public function index(Event $event): ResourceCollection
     {
-        return AttendeeResource::collection($event->attendees()->latest()->paginate(25));
+        return AttendeeResource::collection($this->loadRelationships($event->attendees()->latest())->paginate(25));
     }
 
     public function store(Event $event): AttendeeResource
@@ -28,7 +30,7 @@ class AttendeeController extends Controller
 
     public function show(Event $event, string $id): AttendeeResource
     {
-        $attendee = $event->attendees()->findOrFail($id);
+        $attendee = $this->loadRelationships($event->attendees()->findOrFail($id));
         return new AttendeeResource($attendee);
     }
 
