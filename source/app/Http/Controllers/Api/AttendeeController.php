@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AttendeeResource;
 use App\Http\Traits\CanLoadRelationShips;
-use App\Models\Attendee;
 use App\Models\Event;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\ResourceCollection;
@@ -16,7 +15,8 @@ class AttendeeController extends Controller
     private array $relations = ['user'];
     public function index(Event $event): ResourceCollection
     {
-        return AttendeeResource::collection($this->loadRelationships($event->attendees()->latest())->paginate(25));
+        $query = $this->loadRelationships($event->attendees());
+        return AttendeeResource::collection($query->latest()->paginate(25));
     }
 
     public function store(Event $event): AttendeeResource

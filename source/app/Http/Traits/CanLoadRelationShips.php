@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Query\Builder as QueryBuilder;
+use PhpParser\Builder;
 
 trait CanLoadRelationShips
 {
@@ -15,13 +16,9 @@ trait CanLoadRelationShips
     public function loadRelationships(Model|QueryBuilder|EloquentBuilder|HasMany $for, ?array $relationships = null): Model|QueryBuilder|EloquentBuilder|HasMany
     {
         $relationships = $relationships ?? $this->relations ?? [];
-        $query = $for->query();
+        $query = $for instanceof HasMany ? $for : $for->query();
         foreach ($relationships as $relationship) {
             $query->when($this->shouldIncludeRelation($relationship), function ($q) use ($relationship, $for) {
-                $for instanceof Model
-                    ?
-                    $for->load($relationship)
-                    :
                     $q->with($relationship);
             });
         }

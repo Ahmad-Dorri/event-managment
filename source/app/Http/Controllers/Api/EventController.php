@@ -8,6 +8,7 @@ use App\Http\Resources\EventResource;
 use App\Http\Traits\CanLoadRelationShips;
 use App\Models\Event;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class EventController extends Controller
@@ -18,7 +19,6 @@ class EventController extends Controller
     public function index(): ResourceCollection
     {
         $query = $this->loadRelationships(new Event());
-
         return EventResource::collection($query->latest()->paginate(25));
     }
 
@@ -33,9 +33,12 @@ class EventController extends Controller
         return new EventResource($event);
     }
 
-    public function update(EventRequest $request, Event $event): EventResource
+    public function update(Request $request, Event $event): EventResource
     {
-        $data = $request->validated();
+        $data = $request->validate([
+            'name' => 'required|min:3',
+            'description' => 'required|min:10',
+        ]);
         $event->update($data);
         return new EventResource($event);
     }
